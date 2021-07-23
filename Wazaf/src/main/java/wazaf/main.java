@@ -13,10 +13,16 @@ import java.io.IOException;
  */
 public class main {
     public static void main(String[] args) throws IOException{
+        System.out.println("here");
         DataSet data = new DataSet();
-        data.intializeSpark_ml();
-        data.showData(10);
         data.clean();
+        System.out.println(data.head(10));
+        data.head(10);
+//        data.getStructure();
+//        data.getSummary();
+//        data.plotCompanyPieChart(10);
+
+
     }
-    
+
 }
