@@ -66,8 +66,8 @@ public class DataSet {
     // and display some from it.
     public List<Row> head(int n)
     {
-        List<Row> head = jobsDF.limit(n).collectAsList();
-        return head;
+        List<Row> headValues = jobsDF.limit(n).collectAsList();
+        return headValues;
     }
 
 
