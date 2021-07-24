@@ -13,8 +13,6 @@ package wazaf;
  */
 
 
-
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FilterFunction;
@@ -57,12 +55,6 @@ public class DataSet {
     }
 
 
-//    public void showData(int n){
-//        this.jobsDF.show(n);
-//        this.jobsDF.printSchema();
-//
-//    }
-
     // and display some from it.
     public List<Row> head(int n)
     {
@@ -72,7 +64,7 @@ public class DataSet {
 
 
     // 2. Display structure and summary of the data.
-    public String getStructure() throws JsonProcessingException
+    public String getStructure()
     {
         StructType structure = jobsDF.schema();
         return structure.prettyJson();
@@ -128,7 +120,7 @@ public class DataSet {
 //    6. Find out What are it the most popular job titles?
 //            7. Show step 6 in bar chart
 
-    public String jobsForCompany(int n) throws IOException
+    public String PlotTitleForCompany(int n) throws IOException
     {
         Dataset<Row> groupedByCompany = jobsDF.groupBy("Title")
                 .count()
