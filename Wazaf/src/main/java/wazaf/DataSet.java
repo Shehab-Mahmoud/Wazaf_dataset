@@ -14,6 +14,8 @@ package wazaf;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FilterFunction;
 import org.apache.spark.ml.clustering.KMeans;
@@ -27,7 +29,8 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
-
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.io.IOException;
@@ -37,22 +40,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@SuppressWarnings("unchecked")
 public class DataSet {
+    private Dataset<Row> jobsDF;
 
-    SparkSession sparkSession= SparkSession.builder()
-            .appName("wazaf_jobs")
-            .master("local[*]")
-            .config("spark.some.config.option", "some-value")
-            .getOrCreate();
-    String path = "src\\main\\resources\\Wuzzuf_Jobs.csv";
-    private Dataset<Row> jobsDF = sparkSession.read().option("header", true).csv(path);
-
-    public void clean(){
-        this.jobsDF = this.jobsDF.na().drop();
-        this.jobsDF = this.jobsDF.dropDuplicates().filter((FilterFunction<Row>) row -> !row.get(5).equals("null Yrs of Exp"));
-
+    public DataSet() {
+        Logger.getLogger("org").setLevel(Level.ERROR);
+        SparkSession sparkSession= SparkSession.builder()
+                .appName("wazaf_jobs")
+                .master("local[*]")
+                .config("spark.some.config.option", "some-value")
+                .getOrCreate();
+        String path = "src\\main\\resources\\Wuzzuf_Jobs.csv";
+        jobsDF = sparkSession.read().option("header", true).csv(path);
+        jobsDF = jobsDF.na().drop();
+        jobsDF = jobsDF.dropDuplicates().filter((FilterFunction<Row>) row -> !row.get(5).equals("null Yrs of Exp"));
     }
+
 
 
     // and display some from it.
