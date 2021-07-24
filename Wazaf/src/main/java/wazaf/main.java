@@ -25,7 +25,6 @@ public class main {
         System.out.println(data.plotAreaBarChart(10));
         System.out.println(data.getMostDemandedSkills());
         System.out.println(data.getFactorizedYearsOfExp(10));
-        System.out.println(data.kMeansAlgorithm());
+        System.out.println(data.kMeansAlgorithm(3));
     }
-
 }

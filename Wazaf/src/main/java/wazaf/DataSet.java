@@ -223,7 +223,7 @@ public class DataSet {
 //    12. Apply K-means for job title and companies (Bounce )
 
 
-    public String kMeansAlgorithm()
+    public String kMeansAlgorithm(int k )
     {
         Dataset<Row> dataset = jobsDF.as("data");
         String[] cols = {"Title", "Company"};
@@ -244,7 +244,7 @@ public class DataSet {
         vectorAssembler.setInputCols(factorizedCols).setOutputCol("features");
         Dataset<Row> trainData = vectorAssembler.transform(dataset);
 
-        KMeans kmeans = new KMeans().setK(3).setSeed(1L);
+        KMeans kmeans = new KMeans().setK(k).setSeed(1L);
         kmeans.setFeaturesCol("features");
         KMeansModel model = kmeans.fit(trainData);
 
