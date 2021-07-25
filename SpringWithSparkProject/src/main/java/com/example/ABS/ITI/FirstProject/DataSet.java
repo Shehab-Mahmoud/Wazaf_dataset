@@ -14,6 +14,7 @@ package wazaf;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import javafx.util.Pair;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaRDD;
@@ -29,15 +30,17 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+
+
+import java.util.List;
+
 
 import java.util.*;
 import java.io.IOException;
 
 import static org.apache.spark.sql.functions.col;
 import java.util.Arrays;
-import java.util.List;
+
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -58,11 +61,26 @@ public class DataSet {
     }
 
 
+//    public List<String> RowToString(List<Row> list){
+//
+//
+//    }
 
     // and display some from it.
-    public List<Row> head(int n)
+//    public List<String[]> head(int n)
+//    public List<Row> head(int n)
+    public String head(int n)
     {
-        List<Row> headValues = jobsDF.limit(n).collectAsList();
+        String headValues = jobsDF.showString(10,0,false);
+
+//        List<String[]> headValuesStrings = new ArrayList<>();
+//        for(Row row : headValues) {
+//            String[] eachrow = row.toString()
+//                    .replace("]", "").replace("[", "")
+//                    .split(",", jobsDF.columns().length);
+//            headValuesStrings.add(eachrow);
+//        }
+//        List<String> listOne = jobsDF.map(row -> row.mkString(), Encoders.STRING()).collectAsList();
         return headValues;
         // showstring
     }
@@ -86,18 +104,16 @@ public class DataSet {
     {
 //        Dataset<Row> str =
 ////        List<Row> SummaryList = str.collectAsList();
-        return jobsDF.summary().showString(10,0,false);
+        return jobsDF.summary().showString(1,0,false);
         //
     }
 
 //4. Count the jobs for each company and display that in order
 //            (What are the most demanding companies for jobs?
     //5. Show step 4 in a pie chart
-
-
-
-
-    public String plotCompanyPieChart(int n) throws IOException
+//    Pair<Integer, String>
+//    public String plotCompanyPieChart(int n) throws IOException
+    public Pair<String, String> plotCompanyPieChart(int n) throws IOException
     {
         Dataset<Row> groupedByCompany = jobsDF.groupBy("Company")
                 .count()
@@ -114,9 +130,8 @@ public class DataSet {
         for (int i = 0; i < companies.size() ; i++)
             chart.addSeries(companies.get(i), Integer.parseInt(counts.get(i)));
 
-        BitmapEncoder.saveBitmap(chart, "src/main/resources/company_pie_chart.png", BitmapEncoder.BitmapFormat.PNG);
-        return "src/main/resources/company_pie_chart.png";
-
+        BitmapEncoder.saveBitmap(chart, "src/main/resources/company_pie_chart.JPG", BitmapEncoder.BitmapFormat.JPG);
+        return new Pair<String, String>( groupedByCompany.showString(n,0,false), "src/main/resources/company_pie_chart.JPG");
     }
 
     public List<Row> getMostDemandingCompanies(int n)
@@ -133,7 +148,7 @@ public class DataSet {
 //    6. Find out What are it the most popular job titles?
 //            7. Show step 6 in bar chart
 
-    public String PlotTitleForCompany(int n) throws IOException
+    public Pair<String, String> PlotTitleForCompany(int n) throws IOException
     {
         Dataset<Row> groupedByCompany = jobsDF.groupBy("Title")
                 .count()
@@ -150,14 +165,14 @@ public class DataSet {
             chart.addSeries(titles.get(i), Integer.parseInt(counts.get(i)));
 
         BitmapEncoder.saveBitmap(chart, "src/main/resources/title_pie_chart.png", BitmapEncoder.BitmapFormat.PNG);
-        return "src/main/resources/title_pie_chart.png";
+        return  new Pair<String, String>( groupedByCompany.showString(n,0,false), "src/main/resources/title_pie_chart.png") ;
     }
 
 
 //              8. Find out the most popular areas?
 //            9. Show step 8 in bar chart
 
-    public String plotAreaBarChart(int n) throws IOException
+    public  Pair<String, String>  plotAreaBarChart(int n) throws IOException
     {
         Dataset<Row> groupByLocations = jobsDF.groupBy("Location")
                 .count()
@@ -179,7 +194,7 @@ public class DataSet {
         charts.addSeries("Locations", Areas, counting);
 
         BitmapEncoder.saveBitmap(charts, "src/main/resources/Areas_Bar_chart.png", BitmapEncoder.BitmapFormat.PNG);
-        return "src/main/resources/Areas_Bar_chart.png";
+        return new Pair<String, String>( groupByLocations.showString(n,0,false), "src/main/resources/Areas_Bar_chart.png");
     }
 
 
