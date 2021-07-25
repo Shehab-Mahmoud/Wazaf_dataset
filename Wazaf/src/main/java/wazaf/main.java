@@ -16,15 +16,16 @@ public class main {
     public static void main(String[] args) throws IOException{
         System.out.println("here");
         DataSet data = new DataSet();
-        System.out.println(data.head(10));
-        System.out.println(data.getStructure());
-        System.out.println(data.getSummary());
-        System.out.println(data.plotCompanyPieChart(10));
-        System.out.println(data.getMostDemandingCompanies(10));
-        System.out.println(data.PlotTitleForCompany(10));
-        System.out.println(data.plotAreaBarChart(10));
-        System.out.println(data.getMostDemandedSkills());
+//        System.out.println(data.head(10));
+//        System.out.println(data.getStructure());
+//        System.out.println(data.getSummary());
+//        System.out.println(data.plotCompanyPieChart(10));
+//        System.out.println(data.getMostDemandingCompanies(10));
+//        System.out.println(data.PlotTitleForCompany(10));
+//        System.out.println(data.plotAreaBarChart(10));
+//        System.out.println(data.getMostDemandedSkills());
+//        System.out.println(data.getMostDemandedSkills());
         System.out.println(data.getFactorizedYearsOfExp(10));
-        System.out.println(data.kMeansAlgorithm(3));
+//        System.out.println(data.kMeansAlgorithm(3));
     }
 }

@@ -178,7 +178,7 @@ public class DataSet {
 //    required?
 
 
-        public List<Map.Entry> getMostDemandedSkills()
+        public List<String> getMostDemandedSkills()
     {
         JavaRDD<String> skillByRow = jobsDF.select("Skills").as(Encoders.STRING()).javaRDD();
         JavaRDD<String>  skills = skillByRow.flatMap(skill ->
@@ -186,8 +186,6 @@ public class DataSet {
                     .toLowerCase()
                     .trim()
                     .split(",")).iterator());
-
-
         List<Map.Entry> skillsCounts = skills
                 .countByValue()
                 .entrySet()
@@ -195,8 +193,15 @@ public class DataSet {
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toList());
         Collections.reverse(skillsCounts);
+        List<String> SkillsList =new ArrayList<>();
+        List<Long> SkillCount =new ArrayList<>();
+        for (int i = skillsCounts.size()-1; i>0; i--) {
+            SkillsList.add((String) skillsCounts.get(i).getKey());
+            SkillCount.add((Long) skillsCounts.get(i).getValue());
+        }
 
-        return skillsCounts;
+
+        return SkillsList;
     }
 
 

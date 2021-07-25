@@ -31,6 +31,10 @@ import org.apache.spark.sql.types.StructType;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 
+import scala.collection.JavaConverters;
+
+
+
 
 import java.util.List;
 
@@ -46,10 +50,10 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class DataSet {
     private Dataset<Row> jobsDF;
-
+    private SparkSession sparkSession;
     public DataSet() {
         Logger.getLogger("org").setLevel(Level.ERROR);
-        SparkSession sparkSession= SparkSession.builder()
+        sparkSession = SparkSession.builder()
                 .appName("wazaf_jobs")
                 .master("local[*]")
                 .config("spark.some.config.option", "some-value")
@@ -157,15 +161,20 @@ public class DataSet {
         List<String> titles = groupedByCompany.select("Title").as(Encoders.STRING()).collectAsList();
         List<String> counts = groupedByCompany.select("count").as(Encoders.STRING()).collectAsList();
 
-        PieChart chart = new PieChartBuilder().width(1400).height(700).title("Titles Pie-Chart").build();
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
-        chart.getStyler().setLegendLayout(Styler.LegendLayout.Vertical);
+        List<Float> toFloats = new ArrayList<>();
 
-        for (int i = 0; i < titles.size() ; i++)
-            chart.addSeries(titles.get(i), Integer.parseInt(counts.get(i)));
+        for(String s : counts)
+            toFloats.add(Float.valueOf(s));
 
-        BitmapEncoder.saveBitmap(chart, "src/main/resources/title_pie_chart.png", BitmapEncoder.BitmapFormat.PNG);
-        return  new Pair<String, String>( groupedByCompany.showString(n,0,false), "src/main/resources/title_pie_chart.png") ;
+        CategoryChart chart = new CategoryChartBuilder().width (1400).height (700).title ("Titles Bar-chart").xAxisTitle("Locations").yAxisTitle("frequency").build();
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
+        chart.getStyler().setLegendLayout(Styler.LegendLayout.Horizontal);
+        chart.getStyler().setHasAnnotations(true);
+        chart.getStyler().setStacked(true);
+        chart.addSeries("Locations", titles, toFloats);
+
+        BitmapEncoder.saveBitmap(chart, "src/main/resources/title_bar_chart.png", BitmapEncoder.BitmapFormat.PNG);
+        return  new Pair<String, String>( groupedByCompany.showString(n,0,false), "src/main/resources/title_bar_chart.png") ;
     }
 
 
@@ -180,20 +189,20 @@ public class DataSet {
                 .limit(n);
 
         List<String> Areas = groupByLocations.select("Location").as(Encoders.STRING()).collectAsList();
-        List<String> counted = groupByLocations.select("count").as(Encoders.STRING()).collectAsList();
-        List<Float> counting = new ArrayList<>();
+        List<String> counts = groupByLocations.select("count").as(Encoders.STRING()).collectAsList();
+        List<Float> toFloats = new ArrayList<>();
 
-        for(String s : counted)
-            counting.add(Float.valueOf(s));
+        for(String s : counts)
+            toFloats.add(Float.valueOf(s));
 
-        CategoryChart charts = new CategoryChartBuilder().width (1400).height (700).title ("Locations Bar-chart").xAxisTitle("Locations").yAxisTitle("frequency").build();
-        charts.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
-        charts.getStyler().setLegendLayout(Styler.LegendLayout.Horizontal);
-        charts.getStyler().setHasAnnotations(true);
-        charts.getStyler().setStacked(true);
-        charts.addSeries("Locations", Areas, counting);
+        CategoryChart chart = new CategoryChartBuilder().width (1400).height (700).title ("Locations Bar-chart").xAxisTitle("Locations").yAxisTitle("frequency").build();
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
+        chart.getStyler().setLegendLayout(Styler.LegendLayout.Horizontal);
+        chart.getStyler().setHasAnnotations(true);
+        chart.getStyler().setStacked(true);
+        chart.addSeries("Locations", Areas, toFloats);
 
-        BitmapEncoder.saveBitmap(charts, "src/main/resources/Areas_Bar_chart.png", BitmapEncoder.BitmapFormat.PNG);
+        BitmapEncoder.saveBitmap(chart, "src/main/resources/Areas_Bar_chart.png", BitmapEncoder.BitmapFormat.PNG);
         return new Pair<String, String>( groupByLocations.showString(n,0,false), "src/main/resources/Areas_Bar_chart.png");
     }
 
@@ -202,26 +211,52 @@ public class DataSet {
 //    required?
 
 
-        public List<Map.Entry> getMostDemandedSkills()
-    {
-        JavaRDD<String> skillByRow = jobsDF.select("Skills").as(Encoders.STRING()).javaRDD();
-        JavaRDD<String>  skills = skillByRow.flatMap(skill ->
-            Arrays.asList(skill
-                    .toLowerCase()
-                    .trim()
-                    .split(",")).iterator());
-
-
-        List<Map.Entry> skillsCounts = skills
-                .countByValue()
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toList());
-        Collections.reverse(skillsCounts);
-
-        return skillsCounts;
-    }
+//        public String  getMostImportantSkills()
+//    {
+//
+//        JavaRDD<String> skillByRow = jobsDF.select("Skills").as(Encoders.STRING()).javaRDD();
+//        JavaRDD<String> skills = skillByRow.flatMap(skill ->
+//            Arrays.asList(skill
+//                    .toLowerCase()
+//                    .trim()
+//                    .split(",")).iterator());
+//
+//        List<Map.Entry> skillsCounts = skills
+//                .countByValue()
+//                .entrySet()
+//                .stream()
+//                .sorted(Map.Entry.comparingByValue())
+//                .collect(Collectors.toList());
+//        Collections.reverse(skillsCounts);
+//
+////        List<String> SkillsList =new ArrayList<>();
+////        List<Long> SkillCount =new ArrayList<>();
+////        for (int i = skillsCounts.size()-1; i>0; i--) {
+////            SkillsList.add((String) skillsCounts.get(i).getKey());
+////            SkillCount.add((Long) skillsCounts.get(i).getValue());
+////        }
+//        Map<String,Long> oneMap = new HashMap<>();
+//        for (int i = skillsCounts.size()-1; i>0; i--) {
+//            oneMap.put((String) skillsCounts.get(i).getKey(), (Long) skillsCounts.get(i).getValue());
+//        }
+//        JavaConverters.asScalaIteratorConverter(inputList.iterator()).asScala().toSeq()
+//        Dataset<Row> finalDF = oneMap.toSeq.toDF('namd','count')
+////
+////        List<String> skillsName = new ArrayList<>();
+////        List<String> skillsCount = new ArrayList<>();
+////        for(Map.Entry entry : skillsCounts){
+////            skillsName.add(entry.getKey().toString());
+////            skillsCount.add(entry.getValue().toString());
+////        }
+////        Dataset<Row> skillsNameDF = sparkSession.createDataset(skillsName, Encoders.STRING()).toDF();
+////        Dataset<Row> skillsCountDF = sparkSession.createDataset(skillsName, Encoders.STRING()).toDF();
+////        Dataset<Row>  All =  skillsNameDF.columns.toSet ++ skillsCountDF.columns.toSet
+////        df.withColumn('Count',skillsCount);
+//
+//
+//
+//        return All.showString(10,0,false);
+//    }
 
 
 //    11. Factorize the YearsExp feature and convert it to numbers
@@ -242,6 +277,7 @@ public class DataSet {
 
         return yearsOfExp;
     }
+
 
 
 //    12. Apply K-means for job title and companies (Bounce )

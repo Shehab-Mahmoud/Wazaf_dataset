@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class Controller {
@@ -120,6 +121,11 @@ public @ResponseBody byte[] getAreasBar() throws IOException {
 //10. Print skills one by one and how many each repeated and
 //    order the output to find out the most important skills
 //    required?
+
+//    @RequestMapping(value = "/skills", produces     =  MediaType.TEXT_PLAIN_VALUE )
+//    public String Skills() throws IOException {
+//        return mydata.getMostImportantSkills();
+//    }
 
 
 
