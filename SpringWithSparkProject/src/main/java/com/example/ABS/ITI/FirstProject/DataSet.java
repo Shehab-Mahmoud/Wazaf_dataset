@@ -79,7 +79,7 @@ public class DataSet {
 //    public List<Row> head(int n)
     public String head(int n)
     {
-        String headValues = jobsDF.showString(10,0,false);
+        String headValues = jobsDF.showString(10,40,false);
 
 //        List<String[]> headValuesStrings = new ArrayList<>();
 //        for(Row row : headValues) {
@@ -112,7 +112,7 @@ public class DataSet {
     {
 //        Dataset<Row> str =
 ////        List<Row> SummaryList = str.collectAsList();
-        return jobsDF.summary().showString(1,0,false);
+        return jobsDF.summary().showString(1,40,false) +"\n" + "The data has no max no min So no Summary";
         //
     }
 
@@ -139,7 +139,7 @@ public class DataSet {
             chart.addSeries(companies.get(i), Integer.parseInt(counts.get(i)));
 
         BitmapEncoder.saveBitmap(chart, "src/main/resources/company_pie_chart.JPG", BitmapEncoder.BitmapFormat.JPG);
-        return new Pair<String, String>( groupedByCompany.showString(n,0,false), "src/main/resources/company_pie_chart.JPG");
+        return new Pair<String, String>( groupedByCompany.showString(n,40,false), "src/main/resources/company_pie_chart.JPG");
     }
 
     public List<Row> getMostDemandingCompanies(int n)
@@ -178,7 +178,7 @@ public class DataSet {
         chart.addSeries("Locations", titles, toFloats);
 
         BitmapEncoder.saveBitmap(chart, "src/main/resources/title_bar_chart.png", BitmapEncoder.BitmapFormat.PNG);
-        return  new Pair<String, String>( groupedByCompany.showString(n,0,false), "src/main/resources/title_bar_chart.png") ;
+        return  new Pair<String, String>( groupedByCompany.showString(n,40,false), "src/main/resources/title_bar_chart.png") ;
     }
 
 
@@ -207,7 +207,7 @@ public class DataSet {
         chart.addSeries("Locations", Areas, toFloats);
 
         BitmapEncoder.saveBitmap(chart, "src/main/resources/Areas_Bar_chart.png", BitmapEncoder.BitmapFormat.PNG);
-        return new Pair<String, String>( groupByLocations.showString(n,0,false), "src/main/resources/Areas_Bar_chart.png");
+        return new Pair<String, String>( groupByLocations.showString(n,40,false), "src/main/resources/Areas_Bar_chart.png");
     }
 
 
@@ -310,7 +310,7 @@ public class DataSet {
         Dataset<Row> mDatasetFactorized = jobsDF.withColumn("YearExp_Factorized",
                 regexp_replace(trim(regexp_replace(jobsDF.col("YearsExp"), "[A-Za-z]", "")), "^$", "0"));
         Dataset<Row> yearsOfExp = mDatasetFactorized.select("YearsExp","YearExp_Factorized");
-        return yearsOfExp.showString(n,0,false);
+        return yearsOfExp.showString(n,40,false);
     }
 
 
