@@ -32,6 +32,7 @@ public class Controller {
 
     @RequestMapping(value = "/show"  , produces     =  MediaType.TEXT_PLAIN_VALUE)
     public String showData() {
+        System.out.println("ffff");
         return mydata.head(10);
     }
 
@@ -40,7 +41,7 @@ public class Controller {
     public String getStructure(){
         return mydata.getStructure();
     }
-    @RequestMapping(value = "/Summary" , produces     =  MediaType.TEXT_PLAIN_VALUE )
+    @RequestMapping(value = "/summary" , produces     =  MediaType.TEXT_PLAIN_VALUE )
     public String Summary(){
         return mydata.getSummary();
     }
@@ -121,14 +122,24 @@ public @ResponseBody byte[] getAreasBar() throws IOException {
 //10. Print skills one by one and how many each repeated and
 //    order the output to find out the most important skills
 //    required?
+//
+    @RequestMapping(value = "/skills", produces     =  MediaType.TEXT_PLAIN_VALUE )
+    public String Skills() throws IOException {
 
-//    @RequestMapping(value = "/skills", produces     =  MediaType.TEXT_PLAIN_VALUE )
-//    public String Skills() throws IOException {
-//        return mydata.getMostImportantSkills();
-//    }
+        return mydata.getMostImportantSkills(30);
+    }
 
+    @RequestMapping(value = "/Factorizedyears", produces     =  MediaType.TEXT_PLAIN_VALUE )
+    public String Factorizedyears() throws IOException {
 
+        return mydata.getFactorizedYearsOfExp(10);
+    }
 
+    @RequestMapping(value = "/K-means", produces     =  MediaType.TEXT_PLAIN_VALUE )
+    public String Kmeans() throws IOException {
+
+        return mydata.kMeansAlgorithm();
+    }
 
 
 

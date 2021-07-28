@@ -14,6 +14,7 @@ package wazaf;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.util.Pair;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -28,6 +29,7 @@ import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructType;
+import org.json.simple.JSONObject;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 
@@ -42,10 +44,12 @@ import java.util.List;
 import java.util.*;
 import java.io.IOException;
 
-import static org.apache.spark.sql.functions.col;
 import java.util.Arrays;
 
 import java.util.stream.Collectors;
+
+import static org.apache.spark.sql.functions.*;
+import static org.apache.spark.sql.functions.regexp_replace;
 
 @SuppressWarnings("unchecked")
 public class DataSet {
@@ -211,71 +215,102 @@ public class DataSet {
 //    required?
 
 
-//        public String  getMostImportantSkills()
-//    {
-//
-//        JavaRDD<String> skillByRow = jobsDF.select("Skills").as(Encoders.STRING()).javaRDD();
-//        JavaRDD<String> skills = skillByRow.flatMap(skill ->
-//            Arrays.asList(skill
-//                    .toLowerCase()
-//                    .trim()
-//                    .split(",")).iterator());
-//
-//        List<Map.Entry> skillsCounts = skills
-//                .countByValue()
-//                .entrySet()
-//                .stream()
-//                .sorted(Map.Entry.comparingByValue())
-//                .collect(Collectors.toList());
-//        Collections.reverse(skillsCounts);
-//
-////        List<String> SkillsList =new ArrayList<>();
-////        List<Long> SkillCount =new ArrayList<>();
-////        for (int i = skillsCounts.size()-1; i>0; i--) {
-////            SkillsList.add((String) skillsCounts.get(i).getKey());
-////            SkillCount.add((Long) skillsCounts.get(i).getValue());
-////        }
+
+        public String  getMostImportantSkills(int n ) throws JsonProcessingException {
+
+        JavaRDD<String> skillByRow = jobsDF.select("Skills").as(Encoders.STRING()).javaRDD();
+
+        JavaRDD<String> skills = skillByRow.flatMap(skill ->
+            Arrays.asList(skill.trim()
+                    .toLowerCase()
+                    .trim()
+                    .split(","))
+                    .iterator());
+            skills = skills.flatMap(skill ->
+                    Arrays.asList(skill.trim()
+                            .toLowerCase()
+                            .trim()
+                            .split(","))
+                            .iterator());
+
+        List<Map.Entry> skillsCounts = skills
+                .countByValue()
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toList());
+            Collections.reverse(skillsCounts);
+            int size = skillsCounts.size();
+            String Wen = "";
+
+            for(int i = 0; i <n;i++)
+            {
+               Wen += ("#" + (i) + " - " + skillsCounts.get(i).getKey() + " : " + skillsCounts.get(i).getValue()) + "\n";
+            }
+//        List<String> SkillsList =new ArrayList<>();
+//        List<Long> SkillCount =new ArrayList<>();
+//        for (int i = skillsCounts.size()-1; i>0; i--) {
+//            SkillsList.add((String) skillsCounts.get(i).getKey());
+//            SkillCount.add((Long) skillsCounts.get(i).getValue());
+//        }
+
 //        Map<String,Long> oneMap = new HashMap<>();
+
 //        for (int i = skillsCounts.size()-1; i>0; i--) {
 //            oneMap.put((String) skillsCounts.get(i).getKey(), (Long) skillsCounts.get(i).getValue());
 //        }
+//        LinkedHashMap<String, Long> sortedMap = new LinkedHashMap<>();
+//        oneMap.entrySet()
+//                .stream()
+//                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+//                .forEachOrdered(x -> sortedMap.put(x.getKey(), x.getValue()));
+
+
+
+
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        String json = objectMapper.writeValueAsString(sortedMap);
+
+//        JSONObject jsonObject = new JSONObject(json);
 //        JavaConverters.asScalaIteratorConverter(inputList.iterator()).asScala().toSeq()
 //        Dataset<Row> finalDF = oneMap.toSeq.toDF('namd','count')
-////
-////        List<String> skillsName = new ArrayList<>();
-////        List<String> skillsCount = new ArrayList<>();
-////        for(Map.Entry entry : skillsCounts){
-////            skillsName.add(entry.getKey().toString());
-////            skillsCount.add(entry.getValue().toString());
-////        }
-////        Dataset<Row> skillsNameDF = sparkSession.createDataset(skillsName, Encoders.STRING()).toDF();
-////        Dataset<Row> skillsCountDF = sparkSession.createDataset(skillsName, Encoders.STRING()).toDF();
-////        Dataset<Row>  All =  skillsNameDF.columns.toSet ++ skillsCountDF.columns.toSet
-////        df.withColumn('Count',skillsCount);
 //
-//
-//
-//        return All.showString(10,0,false);
-//    }
+//        List<String> skillsName = new ArrayList<>();
+//        List<String> skillsCount = new ArrayList<>();
+//        for(Map.Entry entry : skillsCounts){
+//            skillsName.add(entry.getKey().toString());
+//            skillsCount.add(entry.getValue().toString());
+//        }
+
+//        Dataset<Row> skillsNameDF = sparkSession.createDataset(skillsName, Encoders.STRING()).toDF();
+//        Dataset<Row> skillsCountDF = sparkSession.createDataset(skillsName, Encoders.STRING()).toDF();
+//        Dataset<Row>  All =  skillsNameDF.columns.toSet ++ skillsCountDF.columns.toSet
+//        df.withColumn('Count',skillsCount);
+//        Dataset<Row> ds = sparkSession.;
+
+
+
+        return Wen;
+    }
 
 
 //    11. Factorize the YearsExp feature and convert it to numbers
 //    in new col. (Bounce )
 
-    public List<Row> getFactorizedYearsOfExp(int n)
+    public String getFactorizedYearsOfExp(int n)
     {
-        Dataset<Row> factorizedYears = new StringIndexer()
-                .setInputCol("YearsExp")
-                .setOutputCol("FactorizedYears")
-                .fit(jobsDF)
-                .transform(jobsDF);
-
-        String[] cols = {"YearsExp", "FactorizedYears"};
-        List<Row> yearsOfExp = factorizedYears.select("YearsExp", "FactorizedYears")
-                .limit(n)
-                .collectAsList();
-
-        return yearsOfExp;
+//        Dataset<Row> factorizedYears = new StringIndexer()
+//                .setInputCol("YearsExp")
+//                .setOutputCol("FactorizedYears")
+//                .fit(jobsDF)
+//                .transform(jobsDF);
+//
+//        String[] cols = {"YearsExp", "FactorizedYears"};
+//        Dataset<Row> yearsOfExp = factorizedYears.select("YearsExp", "FactorizedYears");
+        Dataset<Row> mDatasetFactorized = jobsDF.withColumn("YearExp_Factorized",
+                regexp_replace(trim(regexp_replace(jobsDF.col("YearsExp"), "[A-Za-z]", "")), "^$", "0"));
+        Dataset<Row> yearsOfExp = mDatasetFactorized.select("YearsExp","YearExp_Factorized");
+        return yearsOfExp.showString(n,0,false);
     }
 
 
@@ -308,15 +343,13 @@ public class DataSet {
         kmeans.setFeaturesCol("features");
         KMeansModel model = kmeans.fit(trainData);
 
-        return "<center>" +
-                "Model Distance Measure: " + model.getDistanceMeasure()
-                + "<br>" +
-                "Number of Features: " + model.numFeatures()
-                + "<br>" +
-                "Number of iterations: " + model.getMaxIter()
-                + "<br>" +
-                "Model Centers:" + Arrays.toString(model.clusterCenters())
-                + "</center>";
+        return "Model Distance Measure: " + model.getDistanceMeasure()
+                + "\nNumber of Features: " + model.numFeatures()
+               +
+                "\nNumber of iterations: " + model.getMaxIter()
+               +
+                "\nModel Centers:" + Arrays.toString(model.clusterCenters())
+               ;
     }
 
 
